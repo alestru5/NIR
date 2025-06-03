@@ -1,0 +1,22 @@
+# Скомпилированные файлы
+*.o
+*.out
+*.exe
+trojan_detector
+
+# Директории сборки
+build/
+bin/
+
+# Временные файлы
+*.swp
+*~
+.DS_Store
+
+# Файлы IDE
+.vscode/
+.idea/
+
+# Логи и данные
+*.log
+trojan_ransomware_detector/data/ 
