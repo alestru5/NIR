@@ -5,6 +5,9 @@
 #include <assert.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include "test_common.h"
+
+#define DATA_DIR "trojan_ransomware_detector/data"
 
 // Вспомогательные функции для тестов
 void createTestDirectory(const char* path) {
@@ -32,7 +35,7 @@ void test_storeTrapFileData() {
     printf("Тестирование storeTrapFileData...\n");
     
     // Создаем тестовую директорию
-    createTestDirectory("trojan_ransomware_detector/data");
+    createTestDirectory(DATA_DIR);
     
     // Создаем тестовые данные
     TrapFileData data;
@@ -60,7 +63,7 @@ void test_storeTrapFileData() {
     
     // Удаляем тестовые файлы
     removeTestFile("trojan_ransomware_detector/data/trap_files.csv");
-    removeTestDirectory("trojan_ransomware_detector/data");
+    removeTestDirectory(DATA_DIR);
     
     printf("Тест storeTrapFileData пройден успешно\n");
 }
@@ -70,7 +73,7 @@ void test_storeActivityData() {
     printf("Тестирование storeActivityData...\n");
     
     // Создаем тестовую директорию
-    createTestDirectory("trojan_ransomware_detector/data");
+    createTestDirectory(DATA_DIR);
     
     // Создаем тестовые данные
     ActivityData data;
@@ -98,7 +101,7 @@ void test_storeActivityData() {
     
     // Удаляем тестовые файлы
     removeTestFile("trojan_ransomware_detector/data/activities.csv");
-    removeTestDirectory("trojan_ransomware_detector/data");
+    removeTestDirectory(DATA_DIR);
     
     printf("Тест storeActivityData пройден успешно\n");
 }
@@ -108,7 +111,7 @@ void test_fetchTrapFileData_empty() {
     printf("Тестирование fetchTrapFileData с пустой базой данных...\n");
     
     // Создаем тестовую директорию
-    createTestDirectory("trojan_ransomware_detector/data");
+    createTestDirectory(DATA_DIR);
     
     int count;
     TrapFileData* data = fetchTrapFileData(&count);
@@ -116,7 +119,7 @@ void test_fetchTrapFileData_empty() {
     assert(count == 0);
     
     // Удаляем тестовую директорию
-    removeTestDirectory("trojan_ransomware_detector/data");
+    removeTestDirectory(DATA_DIR);
     
     printf("Тест fetchTrapFileData_empty пройден успешно\n");
 }
@@ -125,7 +128,7 @@ void test_fetchTrapFileData_with_data() {
     printf("Тестирование fetchTrapFileData с данными...\n");
     
     // Создаем тестовую директорию
-    createTestDirectory("trojan_ransomware_detector/data");
+    createTestDirectory(DATA_DIR);
     
     // Создаем тестовые данные
     const char* test_data = "test_file.txt,2024-03-20 12:00:00,2024-03-20 12:00:00\n";
@@ -144,7 +147,7 @@ void test_fetchTrapFileData_with_data() {
     
     // Удаляем тестовые файлы
     removeTestFile("trojan_ransomware_detector/data/trap_files.csv");
-    removeTestDirectory("trojan_ransomware_detector/data");
+    removeTestDirectory(DATA_DIR);
     
     printf("Тест fetchTrapFileData_with_data пройден успешно\n");
 }
@@ -154,7 +157,7 @@ void test_fetchActivityData_empty() {
     printf("Тестирование fetchActivityData с пустой базой данных...\n");
     
     // Создаем тестовую директорию
-    createTestDirectory("trojan_ransomware_detector/data");
+    createTestDirectory(DATA_DIR);
     
     int count;
     ActivityData* data = fetchActivityData(&count);
@@ -162,7 +165,7 @@ void test_fetchActivityData_empty() {
     assert(count == 0);
     
     // Удаляем тестовую директорию
-    removeTestDirectory("trojan_ransomware_detector/data");
+    removeTestDirectory(DATA_DIR);
     
     printf("Тест fetchActivityData_empty пройден успешно\n");
 }
@@ -171,7 +174,7 @@ void test_fetchActivityData_with_data() {
     printf("Тестирование fetchActivityData с данными...\n");
     
     // Создаем тестовую директорию
-    createTestDirectory("trojan_ransomware_detector/data");
+    createTestDirectory(DATA_DIR);
     
     // Создаем тестовые данные
     const char* test_data = "test_file.txt,write,2024-03-20 12:00:00\n";
@@ -190,7 +193,7 @@ void test_fetchActivityData_with_data() {
     
     // Удаляем тестовые файлы
     removeTestFile("trojan_ransomware_detector/data/activities.csv");
-    removeTestDirectory("trojan_ransomware_detector/data");
+    removeTestDirectory(DATA_DIR);
     
     printf("Тест fetchActivityData_with_data пройден успешно\n");
 }
@@ -205,6 +208,6 @@ int main() {
     test_fetchActivityData_empty();
     test_fetchActivityData_with_data();
     
-    printf("Все тесты пройдены успешно!\n");
+    printf("Все тесты для Database пройдены успешно!\n");
     return 0;
 } 

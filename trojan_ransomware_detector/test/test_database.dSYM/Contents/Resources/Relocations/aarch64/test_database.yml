@@ -1,0 +1,29 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     test_database
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _createTestDirectory, symObjAddr: 0x0, symBinAddr: 0x100001FF8, symSize: 0x28 }
+  - { offsetInCU: 0x47, offset: 0x47, size: 0x8, addend: 0x0, symName: _createTestDirectory, symObjAddr: 0x0, symBinAddr: 0x100001FF8, symSize: 0x28 }
+  - { offsetInCU: 0x6B, offset: 0x6B, size: 0x8, addend: 0x0, symName: _removeTestDirectory, symObjAddr: 0x28, symBinAddr: 0x100002020, symSize: 0x24 }
+  - { offsetInCU: 0x8F, offset: 0x8F, size: 0x8, addend: 0x0, symName: _createTestFile, symObjAddr: 0x4C, symBinAddr: 0x100002044, symSize: 0x60 }
+  - { offsetInCU: 0xCF, offset: 0xCF, size: 0x8, addend: 0x0, symName: _removeTestFile, symObjAddr: 0xAC, symBinAddr: 0x1000020A4, symSize: 0x24 }
+  - { offsetInCU: 0xF3, offset: 0xF3, size: 0x8, addend: 0x0, symName: _test_storeTrapFileData, symObjAddr: 0xD0, symBinAddr: 0x1000020C8, symSize: 0x254 }
+  - { offsetInCU: 0x133, offset: 0x133, size: 0x8, addend: 0x0, symName: _test_storeActivityData, symObjAddr: 0x324, symBinAddr: 0x10000231C, symSize: 0x250 }
+  - { offsetInCU: 0x173, offset: 0x173, size: 0x8, addend: 0x0, symName: _test_fetchTrapFileData_empty, symObjAddr: 0x574, symBinAddr: 0x10000256C, symSize: 0xDC }
+  - { offsetInCU: 0x1A5, offset: 0x1A5, size: 0x8, addend: 0x0, symName: _test_fetchTrapFileData_with_data, symObjAddr: 0x650, symBinAddr: 0x100002648, symSize: 0x20C }
+  - { offsetInCU: 0x1E5, offset: 0x1E5, size: 0x8, addend: 0x0, symName: _test_fetchActivityData_empty, symObjAddr: 0x85C, symBinAddr: 0x100002854, symSize: 0xDC }
+  - { offsetInCU: 0x217, offset: 0x217, size: 0x8, addend: 0x0, symName: _test_fetchActivityData_with_data, symObjAddr: 0x938, symBinAddr: 0x100002930, symSize: 0x20C }
+  - { offsetInCU: 0x257, offset: 0x257, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0xB44, symBinAddr: 0x100002B3C, symSize: 0x58 }
+  - { offsetInCU: 0x26, offset: 0x4FE, size: 0x8, addend: 0x0, symName: _create_data_dir, symObjAddr: 0x0, symBinAddr: 0x100002B94, symSize: 0x60 }
+  - { offsetInCU: 0xB9, offset: 0x591, size: 0x8, addend: 0x0, symName: _create_data_dir, symObjAddr: 0x0, symBinAddr: 0x100002B94, symSize: 0x60 }
+  - { offsetInCU: 0xDD, offset: 0x5B5, size: 0x8, addend: 0x0, symName: _storeTrapFileData, symObjAddr: 0x60, symBinAddr: 0x100002BF4, symSize: 0x9C }
+  - { offsetInCU: 0x110, offset: 0x5E8, size: 0x8, addend: 0x0, symName: _storeActivityData, symObjAddr: 0xFC, symBinAddr: 0x100002C90, symSize: 0x9C }
+  - { offsetInCU: 0x143, offset: 0x61B, size: 0x8, addend: 0x0, symName: _count_lines, symObjAddr: 0x198, symBinAddr: 0x100002D2C, symSize: 0xB4 }
+  - { offsetInCU: 0x195, offset: 0x66D, size: 0x8, addend: 0x0, symName: _fetchTrapFileData, symObjAddr: 0x24C, symBinAddr: 0x100002DE0, symSize: 0x290 }
+  - { offsetInCU: 0x212, offset: 0x6EA, size: 0x8, addend: 0x0, symName: _fetchActivityData, symObjAddr: 0x4DC, symBinAddr: 0x100003070, symSize: 0x290 }
+  - { offsetInCU: 0x26, offset: 0xB9B, size: 0x8, addend: 0x0, symName: _freeTrapFileData, symObjAddr: 0x0, symBinAddr: 0x100003300, symSize: 0xCC }
+  - { offsetInCU: 0x33, offset: 0xBA8, size: 0x8, addend: 0x0, symName: _freeTrapFileData, symObjAddr: 0x0, symBinAddr: 0x100003300, symSize: 0xCC }
+  - { offsetInCU: 0x81, offset: 0xBF6, size: 0x8, addend: 0x0, symName: _updateTrapFiles, symObjAddr: 0xCC, symBinAddr: 0x1000033CC, symSize: 0x4 }
+  - { offsetInCU: 0x96, offset: 0xC0B, size: 0x8, addend: 0x0, symName: _freeActivityData, symObjAddr: 0xD0, symBinAddr: 0x1000033D0, symSize: 0xCC }
+  - { offsetInCU: 0xE4, offset: 0xC59, size: 0x8, addend: 0x0, symName: _freeCollectedThreats, symObjAddr: 0x19C, symBinAddr: 0x10000349C, symSize: 0x4 }
+...

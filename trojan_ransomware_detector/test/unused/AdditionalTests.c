@@ -1,3 +1,15 @@
+#include "test_common.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <time.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <pthread.h>
+
 #include "../include/FileTrapModule.h"
 #include "../include/BehaviorAnalysisModule.h"
 #include "../include/ResponseModule.h"
@@ -5,13 +17,6 @@
 #include "../include/Database.h"
 #include "../include/ActivityData.h"
 #include "../include/FileSystemMonitorModule.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <time.h>
 
 // Вспомогательные функции для тестов
 void createTestDirectory(const char* path) {

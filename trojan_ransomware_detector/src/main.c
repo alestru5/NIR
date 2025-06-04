@@ -5,6 +5,7 @@
 #include "../include/Database.h"
 #include "../include/ActivityData.h"
 #include "../include/FileSystemMonitorModule.h"
+#include "../include/DataUtils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

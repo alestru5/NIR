@@ -1,10 +1,20 @@
+#include "test_common.h"
 #include "../include/FileTrapModule.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <unistd.h>
+#include <sys/types.h>
+#include <dirent.h>
 #include <sys/stat.h>
+#include <unistd.h>
+
+#define NUM_DIRECTORIES 3
+const char* trap_directories[] = {
+    "trojan_ransomware_detector/trap_files",
+    "trojan_ransomware_detector/trap_files/dir1",
+    "trojan_ransomware_detector/trap_files/dir2"
+};
 
 // Вспомогательные функции для тестов
 void createTestDirectory(const char* path) {

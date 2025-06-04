@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 // Файлы для эмуляции хранения данных
 #define TRAP_FILE_DB "trojan_ransomware_detector/data/trap_files.csv"
@@ -9,13 +11,11 @@
 
 // Вспомогательная функция для создания директории data, если она не существует
 void create_data_dir() {
-    // Простая эмуляция создания директории. В реальном проекте лучше использовать системные вызовы.
-    // Например, mkdir в POSIX-системах.
-    // system("mkdir -p trojan_ransomware_detector/data"); // Пример использования системного вызова (менее переносимо)
-
-    // Более переносимый, но более многословный код на C потребуется для надежного создания директорий.
-    // Для этой эмуляции просто предположим, что директория data существует или будет создана вручную.
-    printf("Убедитесь, что директория 'trojan_ransomware_detector/data/' существует.\n");
+    // POSIX-совместимое создание директории, если не существует
+    struct stat st = {0};
+    if (stat("trojan_ransomware_detector/data", &st) == -1) {
+        mkdir("trojan_ransomware_detector/data", 0755);
+    }
 }
 
 void storeTrapFileData(TrapFileData data) {
@@ -131,26 +131,4 @@ ActivityData* fetchActivityData(int* count) {
     }
     fclose(fp);
     return data;
-}
-
-// Функция для освобождения памяти, выделенной для данных файлов-ловушек
-void freeTrapFileData(TrapFileData* data, int count) {
-    if (data == NULL) return;
-    for (int i = 0; i < count; i++) {
-        free(data[i].filePath);
-        free(data[i].creationTime);
-        free(data[i].lastAccessTime);
-    }
-    free(data);
-}
-
-// Функция для освобождения памяти, выделенной для данных активности
-void freeActivityData(ActivityData* data, int count) {
-    if (data == NULL) return;
-    for (int i = 0; i < count; i++) {
-        free(data[i].filePath);
-        free(data[i].activityType);
-        free(data[i].timestamp);
-    }
-    free(data);
 } 

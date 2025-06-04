@@ -5,6 +5,7 @@
 #include "../include/Database.h"
 #include "../include/ActivityData.h"
 #include "../include/FileSystemMonitorModule.h"
+#include "test_common.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,14 +27,13 @@ void test_system_initialization() {
     printf("Тестирование инициализации системы...\n");
     
     // Создаем тестовые директории
-    createTestDirectory("trojan_ransomware_detector/trap_files");
     createTestDirectory("trojan_ransomware_detector/user_docs");
     
     // Создаем и размещаем файлы-ловушки
     createAndPlaceTrapFiles();
     
-    // Проверяем, что файлы-ловушки созданы
-    DIR* dir = opendir("trojan_ransomware_detector/trap_files");
+    // Проверяем, что файлы-ловушки созданы в user_docs
+    DIR* dir = opendir("trojan_ransomware_detector/user_docs");
     assert(dir != NULL);
     int files_found = 0;
     struct dirent* entry;
@@ -46,18 +46,17 @@ void test_system_initialization() {
     assert(files_found > 0);
     
     // Очищаем тестовые директории
-    dir = opendir("trojan_ransomware_detector/trap_files");
+    dir = opendir("trojan_ransomware_detector/user_docs");
     if (dir != NULL) {
         while ((entry = readdir(dir)) != NULL) {
             if (entry->d_type == DT_REG) {
                 char file_path[512];
-                snprintf(file_path, sizeof(file_path), "trojan_ransomware_detector/trap_files/%s", entry->d_name);
+                snprintf(file_path, sizeof(file_path), "trojan_ransomware_detector/user_docs/%s", entry->d_name);
                 remove(file_path);
             }
         }
         closedir(dir);
     }
-    removeTestDirectory("trojan_ransomware_detector/trap_files");
     removeTestDirectory("trojan_ransomware_detector/user_docs");
     
     printf("Тест system_initialization пройден успешно\n");
@@ -241,17 +240,12 @@ void test_report_generation_and_export() {
     // Генерируем отчет
     Report report = generateReport();
     
-    // Экспортируем отчет
+    // Экспортируем отчет (освобождение памяти происходит внутри exportReport)
     exportReport(report, "text");
     
-    // Освобождаем память
+    // Освобождаем только threat
     free(threat.description);
     free(threat.severity);
-    free(report.reportId);
-    free(report.generationTime);
-    free(report.threats[0].description);
-    free(report.threats[0].severity);
-    free(report.threats);
     
     printf("Тест report_generation_and_export пройден успешно\n");
 }

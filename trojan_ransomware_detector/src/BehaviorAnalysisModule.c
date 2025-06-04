@@ -1,9 +1,12 @@
 #include "../include/BehaviorAnalysisModule.h"
 #include "../include/Database.h" // Для извлечения данных из БД
 #include "../include/ResponseModule.h" // Для уведомления ResponseModule
+#include "../include/ActivityData.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <pthread.h>
 
 // Реализация функций для модуля BehaviorAnalysisModule
 
@@ -16,53 +19,87 @@ ActivityData* fetchDataFromDB(int* count) {
 
 // Анализирует поведенческие данные и выявляет аномальные паттерны.
 AnalysisResult analyzeBehavior(ActivityData* data, int dataCount) {
-    printf("Анализ поведенческих данных...\n");
     AnalysisResult result;
-    result.analyzedData = data; 
+    result.analyzedData = data;
     result.analyzedDataCount = dataCount;
+
+    printf("Анализ поведенческих данных...\n");
     
     result.suspiciousPatterns = NULL; 
     result.suspiciousPatternsCount = 0;
     
     int write_operations_count = 0;
     int delete_operations_count = 0;
-    int potentially_renamed_count = 0; // Для эмуляции проверки расширений
+    int potentially_renamed_count = 0;
+    int rapid_operations_count = 0;
+    int same_extension_count = 0; // Счетчик операций с одинаковым расширением
+    int suspicious_extensions_count = 0; // Счетчик подозрительных расширений
+    time_t last_operation_time = 0;
+    char last_extension[10] = ""; // Для отслеживания последовательности расширений
+    const char* suspicious_extensions[] = {".enc", ".locked", ".crypto", ".ransom", ".crypted"};
 
-    printf("Проверка операций с файлами-ловушками...\n");
-    // В реальной системе здесь нужно сравнивать filePath с путем к известным файлам-ловушкам.
-    // Поскольку у нас эмуляция, и мы добавляем фиктивные данные с путем к user_docs/financial_report.docx
-    // (который может быть ловушкой или нет, в зависимости от конфигурации),
-    // мы просто будем анализировать переданные данные об активности.
-    // Ищем подозрительные операции (write, delete) на файлах, которые *могут* быть ловушками.
-    
-    // Эмуляция: Проходим по данным активности и считаем подозрительные операции
-    for (int i = 0; i < dataCount; i++) {
-        if (data[i].filePath != NULL && data[i].activityType != NULL) {
-            // В реальной системе здесь проверяется, является ли data[i].filePath путем к файлу-ловушке
-            // Для эмуляции, предположим, что все записи в data относятся к потенциально отслеживаемым файлам.
-            
-            if (strcmp(data[i].activityType, "write") == 0) {
-                write_operations_count++;
-            } else if (strcmp(data[i].activityType, "delete") == 0) {
-                delete_operations_count++;
-            } 
-            // Эмуляция проверки изменения расширений: если есть операция write на файле,
-            // и мы предполагаем, что это может быть попытка шифрования с заменой расширения.
-            // В реальной системе это сложнее, нужно отслеживать переименования и изменения содержимого.
-            // Упрощенная эмуляция: любая операция write может потенциально указывать на попытку изменения/шифрования.
-            if (strcmp(data[i].activityType, "write") == 0) {
-                 // В реальной системе тут была бы логика анализа имени файла до/после или содержимого
-                 potentially_renamed_count++; 
+    // Анализ данных из CSV файла
+    FILE* csvFile = fopen("trojan_ransomware_detector/data/behavior_analysis.csv", "r");
+    if (csvFile != NULL) {
+        char line[1024];
+        // Пропускаем заголовок
+        if (fgets(line, sizeof(line), csvFile) != NULL) {
+            while (fgets(line, sizeof(line), csvFile) != NULL) {
+                char timestamp[80], file_path[512], activity_type[50], details[512];
+                if (sscanf(line, "%[^,],%[^,],%[^,],%[^\n]", timestamp, file_path, activity_type, details) == 4) {
+                    // Преобразуем timestamp в time_t
+                    struct tm tm;
+                    strptime(timestamp, "%Y-%m-%d %H:%M:%S", &tm);
+                    time_t operation_time = mktime(&tm);
+
+                    // Проверяем временной интервал между операциями
+                    if (last_operation_time != 0) {
+                        double time_diff = difftime(operation_time, last_operation_time);
+                        if (time_diff < 1.0) {
+                            rapid_operations_count++;
+                        }
+                    }
+                    last_operation_time = operation_time;
+
+                    // Анализируем тип активности
+                    if (strcmp(activity_type, "create") == 0) {
+                        write_operations_count++;
+                    } else if (strcmp(activity_type, "delete") == 0) {
+                        delete_operations_count++;
+                    } else if (strcmp(activity_type, "modify") == 0) {
+                        write_operations_count++;
+                        potentially_renamed_count++;
+                    }
+
+                    // Анализ расширений файлов
+                    char* extension = strrchr(file_path, '.');
+                    if (extension != NULL) {
+                        // Проверка на подозрительные расширения
+                        for (int i = 0; i < sizeof(suspicious_extensions)/sizeof(suspicious_extensions[0]); i++) {
+                            if (strcmp(extension, suspicious_extensions[i]) == 0) {
+                                suspicious_extensions_count++;
+                                break;
+                            }
+                        }
+
+                        // Проверка на последовательность одинаковых расширений
+                        if (strlen(last_extension) > 0 && strcmp(extension, last_extension) == 0) {
+                            same_extension_count++;
+                        }
+                        strncpy(last_extension, extension, sizeof(last_extension) - 1);
+                        last_extension[sizeof(last_extension) - 1] = '\0';
+                    }
+                }
             }
         }
+        fclose(csvFile);
     }
-    
-    printf("Подсчет подозрительных операций: запись=%d, удаление=%d, потенциальное_изменение_расширения=%d\n", 
-           write_operations_count, delete_operations_count, potentially_renamed_count);
 
-    // Эмуляция выявления аномальных паттернов
-    // Проверка на массовое шифрование (эмуляция): большое количество операций записи/удаления
-    if (write_operations_count > 5 || delete_operations_count > 3) { // Пороги для эмуляции
+    printf("Подсчет подозрительных операций: запись=%d, удаление=%d, потенциальное_изменение_расширения=%d, быстрые_операции=%d, одинаковые_расширения=%d, подозрительные_расширения=%d\n", 
+           write_operations_count, delete_operations_count, potentially_renamed_count, rapid_operations_count, same_extension_count, suspicious_extensions_count);
+
+    // Проверка на массовое шифрование
+    if (write_operations_count > 5 || delete_operations_count > 3) {
         result.suspiciousPatternsCount++;
         result.suspiciousPatterns = (char**)realloc(result.suspiciousPatterns, result.suspiciousPatternsCount * sizeof(char*));
         if (result.suspiciousPatterns) {
@@ -71,28 +108,54 @@ AnalysisResult analyzeBehavior(ActivityData* data, int dataCount) {
         printf("Выявлен аномальный паттерн: массовое шифрование (эмуляция).\n");
     }
     
-    // Эмуляция проверки изменения расширений
-    if (potentially_renamed_count > 0 && write_operations_count > 0) { // Если были операции записи и потенциальные изменения
-         // В реальной системе здесь проверяется, действительно ли расширение файла изменилось после операции
-         // Для эмуляции, любое совпадение условия выше считается потенциальным изменением расширения.
-         int found = 0;
-         for(int i = 0; i < result.suspiciousPatternsCount; i++) {
-             if(strcmp(result.suspiciousPatterns[i], "Обнаружено потенциальное изменение расширения файла (эмуляция).") == 0) {
-                 found = 1;
-                 break;
-             }
-         }
-         if (!found) {
-             result.suspiciousPatternsCount++;
-             result.suspiciousPatterns = (char**)realloc(result.suspiciousPatterns, result.suspiciousPatternsCount * sizeof(char*));
-             if (result.suspiciousPatterns) {
-                 result.suspiciousPatterns[result.suspiciousPatternsCount - 1] = strdup("Обнаружено потенциальное изменение расширения файла (эмуляция).");
-             }
-             printf("Выявлен аномальный паттерн: потенциальное изменение расширения (эмуляция).\n");
-         }
+    // Проверка на изменение расширений
+    if (potentially_renamed_count > 0 && write_operations_count > 0) {
+        int found = 0;
+        for(int i = 0; i < result.suspiciousPatternsCount; i++) {
+            if(strcmp(result.suspiciousPatterns[i], "Обнаружено потенциальное изменение расширения файла (эмуляция).") == 0) {
+                found = 1;
+                break;
+            }
+        }
+        if (!found) {
+            result.suspiciousPatternsCount++;
+            result.suspiciousPatterns = (char**)realloc(result.suspiciousPatterns, result.suspiciousPatternsCount * sizeof(char*));
+            if (result.suspiciousPatterns) {
+                result.suspiciousPatterns[result.suspiciousPatternsCount - 1] = strdup("Обнаружено потенциальное изменение расширения файла (эмуляция).");
+            }
+            printf("Выявлен аномальный паттерн: потенциальное изменение расширения (эмуляция).\n");
+        }
     }
-    
-    // В реальной системе здесь может быть больше типов анализа и паттернов.
+
+    // Проверка на быстрые последовательные операции
+    if (rapid_operations_count > 3) {
+        result.suspiciousPatternsCount++;
+        result.suspiciousPatterns = (char**)realloc(result.suspiciousPatterns, result.suspiciousPatternsCount * sizeof(char*));
+        if (result.suspiciousPatterns) {
+            result.suspiciousPatterns[result.suspiciousPatternsCount - 1] = strdup("Обнаружена подозрительно быстрая последовательность операций (возможная автоматизация).");
+        }
+        printf("Выявлен аномальный паттерн: быстрые последовательные операции.\n");
+    }
+
+    // Проверка на подозрительные расширения
+    if (suspicious_extensions_count > 0) {
+        result.suspiciousPatternsCount++;
+        result.suspiciousPatterns = (char**)realloc(result.suspiciousPatterns, result.suspiciousPatternsCount * sizeof(char*));
+        if (result.suspiciousPatterns) {
+            result.suspiciousPatterns[result.suspiciousPatternsCount - 1] = strdup("Обнаружены файлы с подозрительными расширениями, характерными для шифровальщиков.");
+        }
+        printf("Выявлен аномальный паттерн: подозрительные расширения файлов.\n");
+    }
+
+    // Проверка на массовое переименование с одинаковым расширением
+    if (same_extension_count > 5) {
+        result.suspiciousPatternsCount++;
+        result.suspiciousPatterns = (char**)realloc(result.suspiciousPatterns, result.suspiciousPatternsCount * sizeof(char*));
+        if (result.suspiciousPatterns) {
+            result.suspiciousPatterns[result.suspiciousPatternsCount - 1] = strdup("Обнаружено массовое переименование файлов с одинаковым расширением (возможное шифрование).");
+        }
+        printf("Выявлен аномальный паттерн: массовое переименование с одинаковым расширением.\n");
+    }
 
     return result;
 }
@@ -185,4 +248,4 @@ void notifyResponseModule(Anomaly* anomalies, int anomaliesCount) {
     receiveNotification(anomalies, anomaliesCount);
     // Память для anomalies и ее содержимого (description, severity, relatedFilePath, relatedActivityType) 
     // теперь должна освобождаться внутри receiveNotification.
-}t 
+} 

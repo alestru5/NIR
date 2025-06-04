@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include "test_common.h"
 
 // Вспомогательные функции для тестов
 Threat* createTestThreat(const char* description, const char* severity) {
